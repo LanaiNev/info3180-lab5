@@ -54,7 +54,7 @@ def login():
 
             if user is not None and check_password_hash(user.password, password):
             # get user id, load into session
-                login_user(user.id)
+                login_user(user)
                 flash('Login Successful.')
             # remember to flash a message to the user
             return redirect(url_for("secure_page"))  # they should be redirected to a secure-page route instead
@@ -68,11 +68,22 @@ def secure_page():
     return render_template('secure_page.html')
 
 
+@app.route("/logout")
+@login_required
+def logout():
+    # Logout the user and end the session
+    logout_user()
+    flash('You have been logged out.')
+    return redirect(url_for('home'))
+
 # user_loader callback. This callback is used to reload the user object from
 # the user ID stored in the session
 @login_manager.user_loader
 def load_user(id):
-    return UserProfile.query.get(int(id))
+    #return UserProfile.query.get(int(id))
+    return db.session.query(UserProfile).get(int(id))
+    
+
 
 ###
 # The functions below should be applicable to all Flask apps.
